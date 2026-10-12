@@ -1219,3 +1219,96 @@ input:focus, select:focus {
 .toast-icon { font-size: 1.2rem; }
 .toast-title { font-weight: 700; font-size: 0.85rem; color: #fff; }
 .toast-msg { font-size: 0.75rem; color: var(--text-secondary); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESPONSIVE / MOBILE OPTIMIZATION
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .nav-metrics {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .tab-nav {
+    padding: 8px 14px;
+    gap: 4px;
+  }
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+  .main-content {
+    padding: 16px 14px 40px;
+  }
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    padding: 12px 14px;
+  }
+  .stat-value {
+    font-size: 1.35rem;
+  }
+  .stat-caption {
+    font-size: 0.68rem;
+  }
+  .tab-header-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .radar-legend {
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.72rem;
+  }
+  .map-canvas-wrapper {
+    height: 380px !important;
+  }
+  .result-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .passport-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .impact-cards-subgrid {
+    grid-template-columns: 1fr;
+  }
+  .table-row {
+    font-size: 0.72rem;
+    padding: 8px 6px;
+  }
+  .toast-notification {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+  .brand-title {
+    font-size: 1.1rem;
+  }
+  .pipeline-stages {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .stage-step {
+    flex: 1 1 30%;
+  }
+}
