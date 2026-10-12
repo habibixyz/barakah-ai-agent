@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barakah AI — Autonomous Food Surplus Logistics · Dubai, UAE</title>
+  <meta name="description" content="Autonomous AI agent for zero-waste food redistribution in Dubai — real-time safety checks, UAE Food Bank matching, GPS routing, and Ne'ma ESG tracking.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header class="navbar" id="main-header">
+    <div class="brand">
+      <div class="logo-badge">
+        <svg class="leaf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">BARAKAH <span class="badge-accent">AUTONOMOUS AI</span></div>
+        <div class="brand-sub">Zero-Waste Food Logistics Agent · Dubai, UAE</div>
+      </div>
+    </div>
+
+    <div class="nav-metrics">
+      <button class="autopilot-toggle active" id="btn-autopilot" onclick="toggleAutopilot()">
+        <span class="status-indicator online"></span>
+        <span>AUTOPILOT: <strong id="autopilot-status">ACTIVE</strong></span>
+      </button>
+
+      <div class="metric-pill">
+        <span class="metric-label">Live Dubai:</span>
+        <strong id="live-dubai-weather" class="text-amber font-mono">Fetching…</strong>
+        <span class="pill-badge">Open-Meteo API</span>
+      </div>
+
+      <div class="metric-pill">
+        <span class="metric-label">Standard:</span>
+        <strong class="text-cyan">DM Code §3.4</strong>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-outline" onclick="triggerManualIntake()">
+        <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Inject Intake
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════ TABS ═══════════════ -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-target="agent-tab" onclick="switchTab('agent-tab')">
+      <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" fill="none" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/></svg>
+      Autonomous ReAct Loop
+    </button>
+    <button class="tab-btn" data-target="logistics-tab" onclick="switchTab('logistics-tab')">
+      <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" fill="none" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+      Dubai Live Map
+    </button>
+    <button class="tab-btn" data-target="compliance-tab" onclick="switchTab('compliance-tab')">
+      <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      Consignment Passport
+    </button>
+    <button class="tab-btn" data-target="impact-tab" onclick="switchTab('impact-tab')">
+      <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" fill="none" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+      Ne'ma ESG Ledger
+    </button>
+  </nav>
+
+  <!-- ═══════════════ MAIN ═══════════════ -->
+  <main class="main-content">
+
+    <!-- Cumulative Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Food Rescued Today</span>
+          <div class="stat-icon emerald">
+            <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" fill="none" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+        </div>
+        <div class="stat-value" id="stat-food-rescued">1,420 <span class="unit">kg</span></div>
+        <div class="stat-caption text-emerald">↑ Autonomous intake accumulating</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Meals Delivered</span>
+          <div class="stat-icon cyan">
+            <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" fill="none" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" x2="6" y1="1" y2="4"/><line x1="10" x2="10" y1="1" y2="4"/><line x1="14" x2="14" y1="1" y2="4"/></svg>
+          </div>
+        </div>
+        <div class="stat-value" id="stat-meals-count">3,550 <span class="unit">meals</span></div>
+        <div class="stat-caption text-cyan">To UAE Food Bank network</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">CO₂e Avoided</span>
+          <div class="stat-icon teal">
+            <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" fill="none" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          </div>
+        </div>
+        <div class="stat-value" id="stat-co2-prevented">3.7 <span class="unit">t CO₂e</span></div>
+        <div class="stat-caption text-teal">Landfill methane prevented · FAO benchmark</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Next Auto-Cycle</span>
+          <div class="stat-icon amber">
+            <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+        </div>
+        <div class="stat-value" id="stat-cadence-label">12 <span class="unit">sec</span></div>
+        <div class="stat-caption text-amber">Auto-intake in <span id="countdown-sec" class="font-mono">12</span>s</div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 1: REACT LOOP ═══ -->
+    <section id="agent-tab" class="tab-panel active">
+      <div class="agent-grid">
+
+        <!-- Left: Active Intake Card -->
+        <div class="glass-panel panel-left">
+          <div class="panel-header">
+            <div class="title-with-badge">
+              <h3>Live Operational Intake</h3>
+              <span class="chip chip-emerald" id="stream-status-chip">Stream Active</span>
+            </div>
+            <span class="text-muted text-xs font-mono" id="feed-clock">LIVE</span>
+          </div>
+
+          <div class="current-task-card" id="current-task-box">
+            <div class="task-card-header">
+              <span class="text-xs uppercase text-muted">Active Ingestion Target</span>
+              <span class="badge-pulse" id="task-badge">Initializing…</span>
+            </div>
+            <div class="target-title" id="target-title">Armani Hotel Dubai</div>
+            <div class="target-meta">
+              <span id="target-location">📍 Downtown Dubai</span>
+              <span id="target-load">⚖️ 280 kg (~700 meals)</span>
+              <span id="target-temp">🌡️ 67.5°C</span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar-label">
+                <span>Pipeline Progress</span>
+                <span id="pipeline-percent">0%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="pipeline-fill" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pipeline Steps -->
+          <div class="pipeline-stages" id="pipeline-steps">
+            <div class="stage-step" data-step="1"><span class="step-num">1</span><span class="step-label">Perceive</span></div>
+            <div class="stage-step" data-step="2"><span class="step-num">2</span><span class="step-label">DM Safety</span></div>
+            <div class="stage-step" data-step="3"><span class="step-num">3</span><span class="step-label">UFB Match</span></div>
+            <div class="stage-step" data-step="4"><span class="step-num">4</span><span class="step-label">Dispatch</span></div>
+            <div class="stage-step" data-step="5"><span class="step-num">5</span><span class="step-label">Passport</span></div>
+          </div>
+
+          <!-- Manual Override -->
+          <details class="manual-override-box">
+            <summary class="custom-summary">⚙️ Manual Intake Override</summary>
+            <form id="intake-form" onsubmit="handleManualSubmit(event)" style="margin-top:14px;">
+              <div class="form-group">
+                <label>Facility</label>
+                <select id="donor-facility" onchange="handleFacilitySelectChange(this.value)">
+                  <option value="Armani Hotel Dubai">Armani Hotel Dubai · Downtown Dubai</option>
+                  <option value="Atlantis The Royal">Atlantis The Royal · Palm Jumeirah</option>
+                  <option value="JW Marriott Marquis Dubai">JW Marriott Marquis · Business Bay</option>
+                  <option value="Dubai World Trade Centre">Dubai WTC · Sheikh Zayed Road</option>
+                  <option value="Carrefour Mall of the Emirates">Carrefour · Mall of the Emirates (Al Barsha)</option>
+                  <option value="Address Dubai Marina">Address Dubai Marina · Dubai Marina</option>
+                  <option value="The Ritz-Carlton, DIFC">The Ritz-Carlton · DIFC</option>
+                  <option value="Grand Hyatt Dubai">Grand Hyatt Dubai · Bur Dubai</option>
+                  <option value="Spinneys Mirdif City Centre">Spinneys · Mirdif City Centre</option>
+                  <option value="Radisson RED Silicon Oasis">Radisson RED · Dubai Silicon Oasis</option>
+                  <option value="Rove Expo 2020 Hotel">Rove Expo 2020 Hotel · Expo City Dubai</option>
+                  <option value="Hyatt Regency Dubai Corniche">Hyatt Regency · Deira Corniche</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Category</label>
+                  <select id="food-category">
+                    <option value="Hot Prepared Buffet (TCS Hot)">Hot Buffet (≥60°C)</option>
+                    <option value="Chilled Deli & Dairy (TCS Cold)">Chilled Deli (≤5°C)</option>
+                    <option value="Packaged Bakery & Dry">Bakery / Dry</option>
+                    <option value="Fresh Produce">Fresh Produce</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Weight (kg)</label>
+                  <input type="number" id="food-weight" min="5" max="3000" value="280" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Holding Temp (°C)</label>
+                  <input type="number" id="holding-temp" step="0.1" value="67.5" required>
+                </div>
+                <div class="form-group">
+                  <label>Mins Since Pulled</label>
+                  <input type="number" id="prep-time-mins" min="0" max="180" value="15" required>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-secondary w-full" style="margin-top:8px;">
+                Run Agent on This Intake
+              </button>
+            </form>
+          </details>
+        </div>
+
+        <!-- Right: Reasoning Terminal -->
+        <div class="glass-panel panel-right">
+          <div class="panel-header">
+            <div class="title-with-badge">
+              <h3>Autonomous ReAct Reasoning Stream</h3>
+              <span class="chip chip-cyan">Live Cognition</span>
+            </div>
+            <div class="stream-controls">
+              <span class="chip chip-emerald" style="font-size:.68rem;padding:3px 9px;">● REAL-TIME</span>
+              <button class="btn btn-xs btn-outline" onclick="clearReasoningTrace()">Clear</button>
+            </div>
+          </div>
+
+          <div class="terminal-container">
+            <div class="terminal-header">
+              <div class="terminal-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <span class="terminal-title">barakah_agent.py · Autonomous Loop</span>
+              <span class="terminal-status"><span class="pulse-dot"></span> AUTOPILOT STREAM</span>
+            </div>
+            <div class="terminal-body" id="terminal-feed"></div>
+          </div>
+
+          <!-- Result Box -->
+          <div class="result-box" id="result-box" style="display:none;">
+            <div class="result-header">
+              <div class="result-badge">✓ CONSIGNMENT AUTHORIZED &amp; DISPATCHED</div>
+              <span class="font-mono text-xs" id="res-token">—</span>
+            </div>
+            <div class="result-grid">
+              <div class="res-item">
+                <span class="res-label">Matched Recipient:</span>
+                <strong id="res-node-name">—</strong>
+                <span class="text-xs text-muted" id="res-node-address">—</span>
+              </div>
+              <div class="res-item">
+                <span class="res-label">Thermal Compliance:</span>
+                <strong class="text-emerald" id="res-temp-status">—</strong>
+              </div>
+              <div class="res-item">
+                <span class="res-label">Carrier &amp; ETA:</span>
+                <strong id="res-van-name">—</strong>
+                <span class="text-xs text-muted" id="res-eta">—</span>
+              </div>
+              <div class="res-item">
+                <span class="res-label">Ne'ma Impact:</span>
+                <strong class="text-cyan" id="res-impact-meals">—</strong>
+                <span class="text-xs text-muted" id="res-impact-co2">—</span>
+              </div>
+            </div>
+            <div class="res-crypto">
+              <span class="res-label">SHA-256 Proof:</span>
+              <code class="font-mono text-xs" id="res-hash">—</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ TAB 2: LIVE MAP ═══ -->
+    <section id="logistics-tab" class="tab-panel">
+      <div class="tab-header-box">
+        <div>
+          <h2>Real Dubai Geospatial Map — OpenStreetMap</h2>
+          <p class="text-muted">Live tile map with exact GPS coordinates of donor facilities, UAE Food Bank hubs, and active courier routing. Animated delivery vehicle updates every frame.</p>
+        </div>
+        <div class="radar-legend">
+          <span class="legend-item"><span class="marker donor"></span> Donor Kitchen</span>
+          <span class="legend-item"><span class="marker recipient"></span> Food Bank Hub</span>
+          <span class="legend-item"><span class="marker van"></span> EV Courier</span>
+        </div>
+      </div>
+
+      <div class="map-grid">
+        <div class="glass-panel map-canvas-wrapper" style="height:530px;">
+          <div id="leaflet-dubai-map" style="width:100%;height:100%;border-radius:12px;"></div>
+          <div class="map-overlay-info" id="map-selection-box">
+            <div class="overlay-header">
+              <span class="chip chip-emerald" id="map-target-status">Active In Transit</span>
+              <span class="text-xs text-muted" id="map-target-eta">—</span>
+            </div>
+            <div class="overlay-title" id="map-target-route">Awaiting first dispatch…</div>
+            <div class="overlay-stats">
+              <div>🌡️ Holding: <strong id="map-target-temp">—</strong></div>
+              <div>⚡ Carrier: <strong id="map-target-carrier">—</strong></div>
+              <div>📦 Payload: <strong id="map-target-load">—</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel dispatch-queue-panel">
+          <div class="panel-header">
+            <h3>UAE Food Bank Network</h3>
+            <span class="chip chip-cyan">12 Verified Hubs · All Dubai</span>
+          </div>
+          <div class="nodes-list" id="nodes-container"></div>
+
+          <div class="cold-chain-telemetry">
+            <h4>Cold-Chain Safety Window</h4>
+            <div class="alert-box-info">
+              <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+              <span>DM §3.4: 120-minute redistribution window from kitchen pull. Agent auto-diverts to composting if thermal or time limits are breached.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ TAB 3: PASSPORT ═══ -->
+    <section id="compliance-tab" class="tab-panel">
+      <div class="tab-header-box">
+        <div>
+          <h2>Dubai Municipality Food Code &amp; Digital Consignment Passport</h2>
+          <p class="text-muted">Every consignment gets a cryptographically signed digital passport with a scannable QR code — verifiable on any smartphone.</p>
+        </div>
+      </div>
+
+      <div class="compliance-grid">
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h3>Dubai Municipality Food Code §3.4 — Compliance Checks</h3>
+            <span class="chip chip-emerald">Automated Verification</span>
+          </div>
+
+          <div class="checklist-items">
+            <div class="check-item passed">
+              <div class="check-icon">✓</div>
+              <div class="check-content">
+                <div class="check-title">Thermal Critical Limit</div>
+                <div class="check-desc">Hot food ≥ 60°C, cold food ≤ 5°C — validated per Dubai Food Code Clause 3.4 on every single intake.</div>
+              </div>
+              <span class="badge-success">Automated</span>
+            </div>
+            <div class="check-item passed">
+              <div class="check-icon">✓</div>
+              <div class="check-content">
+                <div class="check-title">2-Hour Redistribution Window</div>
+                <div class="check-desc">Transit must complete within 120 minutes of kitchen pull. Agent auto-rejects if window &lt; 40 minutes remaining.</div>
+              </div>
+              <span class="badge-success">Enforced</span>
+            </div>
+            <div class="check-item passed">
+              <div class="check-icon">✓</div>
+              <div class="check-content">
+                <div class="check-title">High-Ambient Heat Protocol</div>
+                <div class="check-desc">When live Dubai temperature ≥ 32°C (fetched from Open-Meteo), active mechanical compressor refrigeration is mandated by law.</div>
+              </div>
+              <span class="badge-success">Live-Aware</span>
+            </div>
+            <div class="check-item passed">
+              <div class="check-icon">✓</div>
+              <div class="check-content">
+                <div class="check-title">Allergen &amp; Halal Tagging</div>
+                <div class="check-desc">Automatic allergen flagging (Gluten, Dairy, Nuts) and 100% Halal verified-kitchen certification for all consignments.</div>
+              </div>
+              <span class="badge-success">Tagged</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel passport-card-panel">
+          <div class="passport-card" id="passport-document">
+            <div class="passport-header">
+              <div class="passport-brand">
+                <span class="uae-crest">🇦🇪</span>
+                <div>
+                  <div class="passport-org">DUBAI MUNICIPALITY / UAE FOOD BANK</div>
+                  <div class="passport-title">DIGITAL FOOD RESCUE PASSPORT</div>
+                </div>
+              </div>
+              <div id="real-qr-container" class="qr-mockup" title="Scan with smartphone to verify"></div>
+            </div>
+
+            <div class="passport-details">
+              <div class="p-field"><span class="p-label">Consignment Token:</span><span class="p-val font-mono" id="doc-token">—</span></div>
+              <div class="p-field"><span class="p-label">Donor Facility:</span><span class="p-val" id="doc-donor">—</span></div>
+              <div class="p-field"><span class="p-label">Recipient Hub:</span><span class="p-val" id="doc-recipient">—</span></div>
+              <div class="p-field"><span class="p-label">Net Mass &amp; Meals:</span><span class="p-val" id="doc-weight">—</span></div>
+              <div class="p-field"><span class="p-label">Thermal Status:</span><span class="p-val text-emerald" id="doc-temp">—</span></div>
+              <div class="p-field"><span class="p-label">Carrier:</span><span class="p-val" id="doc-carrier">—</span></div>
+              <div class="p-field full"><span class="p-label">SHA-256 Hash:</span><span class="p-val font-mono text-xs text-muted" id="doc-hash">—</span></div>
+            </div>
+
+            <div class="passport-footer">
+              <span class="badge-approved">🛡️ DIGITALLY VERIFIED BY BARAKAH AI AGENT</span>
+              <span class="timestamp" id="doc-time">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ TAB 4: ESG LEDGER ═══ -->
+    <section id="impact-tab" class="tab-panel">
+      <div class="tab-header-box">
+        <div>
+          <h2>Ne'ma National Initiative — Real-Time ESG Circular Ledger</h2>
+          <p class="text-muted">UAE's National Program for Food Loss &amp; Waste targets a <strong>50% reduction by 2030</strong>. All metrics below use FAO benchmarks and Ne'ma Roadmap coefficients.</p>
+        </div>
+        <div class="nema-badge"><span>Aligned with UAE Ne'ma 2030</span></div>
+      </div>
+
+      <div class="impact-grid">
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h3>Cumulative Environmental Impact</h3>
+            <span class="chip chip-emerald">FAO-Benchmarked</span>
+          </div>
+          <div class="impact-cards-subgrid">
+            <div class="impact-metric-box">
+              <div class="metric-big-icon">🌾</div>
+              <div class="metric-num" id="total-kg-diverted">184,520</div>
+              <div class="metric-name">kg Diverted from Landfill</div>
+              <p class="text-xs text-muted">Prevented decomposition &amp; toxic leachate in Al Qusais landfill.</p>
+            </div>
+            <div class="impact-metric-box">
+              <div class="metric-big-icon">🌍</div>
+              <div class="metric-num text-teal" id="total-co2-diverted">479.8</div>
+              <div class="metric-name">Metric Tons CO₂e Avoided</div>
+              <p class="text-xs text-muted">FAO coefficient: 2.6 kg CO₂e per kg food waste. Equiv. ~104 cars off Dubai roads for 1 year.</p>
+            </div>
+            <div class="impact-metric-box">
+              <div class="metric-big-icon">💧</div>
+              <div class="metric-num text-cyan" id="total-water-saved">138,390</div>
+              <div class="metric-name">Thousand Litres Water Saved</div>
+              <p class="text-xs text-muted">Virtual water footprint: 750 L per kg food rescued.</p>
+            </div>
+            <div class="impact-metric-box">
+              <div class="metric-big-icon">💰</div>
+              <div class="metric-num text-amber" id="total-value-saved">AED 2.77M</div>
+              <div class="metric-name">Commercial &amp; Social Value</div>
+              <p class="text-xs text-muted">AED 15 per meal · converted into verified CSR credits and humanitarian relief.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <h3>Corporate Partner Leaderboard</h3>
+            <span class="chip chip-cyan">Top Contributors</span>
+          </div>
+          <div class="leaderboard-table">
+            <div class="table-row header">
+              <span>Partner / Hotel Group</span>
+              <span>Diverted (kg)</span>
+              <span>Meals</span>
+              <span>ESG Score</span>
+            </div>
+            <div class="table-row">
+              <span class="bold">Jumeirah Hospitality Group</span>
+              <span class="font-mono">42,850</span>
+              <span class="text-cyan">107,125</span>
+              <span class="text-emerald">99.4% · Tier 1</span>
+            </div>
+            <div class="table-row">
+              <span class="bold">Emaar Hospitality (Downtown)</span>
+              <span class="font-mono">38,120</span>
+              <span class="text-cyan">95,300</span>
+              <span class="text-emerald">98.9% · Tier 1</span>
+            </div>
+            <div class="table-row">
+              <span class="bold">Dubai World Trade Centre</span>
+              <span class="font-mono">31,400</span>
+              <span class="text-cyan">78,500</span>
+              <span class="text-emerald">97.8% · Tier 1</span>
+            </div>
+            <div class="table-row">
+              <span class="bold">Majid Al Futtaim (Carrefour)</span>
+              <span class="font-mono">29,750</span>
+              <span class="text-cyan">74,375</span>
+              <span class="text-emerald">96.5% · Tier 1</span>
+            </div>
+            <div class="table-row">
+              <span class="bold">Atlantis, The Palm &amp; Royal</span>
+              <span class="font-mono">22,300</span>
+              <span class="text-cyan">55,750</span>
+              <span class="text-emerald">95.2% · Tier 1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast-notification" id="toast-notify">
+    <div class="toast-icon">⚡</div>
+    <div class="toast-text">
+      <div class="toast-title" id="toast-title">Notification</div>
+      <div class="toast-msg" id="toast-msg">—</div>
+    </div>
+  </div>
+
+  <script src="leaflet.js"></script>
+  <script src="qrcode.min.js"></script>
+  <script src="agent.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
