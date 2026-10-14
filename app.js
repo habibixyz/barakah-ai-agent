@@ -281,7 +281,7 @@ function setStep(num, cls) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// REASONING TRACE TERMINAL
+// REASONING TRACE STREAM (EXECUTIVE TIMELINE)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function appendTrace(trace) {
   const feed = document.getElementById('terminal-feed');
@@ -294,16 +294,41 @@ function appendTrace(trace) {
     ? `TOOL › ${trace.tool}`
     : trace.type.toUpperCase();
 
+  const iconMap = {
+    thought: '💭',
+    action: '⚡',
+    observation: '🔍',
+    warning: '⚠️',
+    decision: '✓'
+  };
+  const icon = iconMap[trace.type] || '•';
+
   let jsonHtml = '';
   if (trace.json) {
     const lines = JSON.stringify(trace.json, null, 2)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    jsonHtml = `<pre class="trace-json"><code>${lines}</code></pre>`;
+    jsonHtml = `
+      <details class="trace-json-details">
+        <summary class="trace-json-summary">
+          <span>Parameters &amp; Telemetry Payload</span>
+          <span class="details-arrow">›</span>
+        </summary>
+        <pre class="trace-json"><code>${lines}</code></pre>
+      </details>
+    `;
   }
 
+  const now = new Date().toLocaleTimeString('en-AE', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
   div.innerHTML = `
-    <span class="trace-tag">${tagLabel}</span>
-    <strong>${trace.title}</strong>
+    <div class="trace-header-row">
+      <div class="trace-badge-group">
+        <span class="trace-icon">${icon}</span>
+        <span class="trace-tag">${tagLabel}</span>
+      </div>
+      <span class="trace-time font-mono">${now} GST</span>
+    </div>
+    <div class="trace-title"><strong>${trace.title}</strong></div>
     ${trace.text ? `<div class="trace-text">${trace.text}</div>` : ''}
     ${jsonHtml}
   `;
